@@ -1,44 +1,3 @@
-//#include <opencv2/core.hpp>
-//#include <opencv2/videoio.hpp>
-//#include <opencv2/highgui.hpp>
-//#include <iostream>
-//#include <opencv2/imgproc.hpp>
-//
-//
-//using namespace cv;
-//using namespace std;
-//
-//
-//int main()
-//{
-//	Mat frame;
-//
-//	VideoCapture cap(0);
-//	if (!cap.isOpened())
-//	{
-//		cerr << "카메라를 열 수 없습니다." << endl;
-//		return -1;
-//	}
-//
-//	while (1)
-//	{
-//		cap.read(frame);
-//		if (frame.empty())
-//		{
-//			cerr << "캡쳐 실패" << endl;
-//			break;
-//		}
-//
-//		cvtColor(frame, frame, COLOR_BGR2GRAY);
-//
-//		imshow("Live", frame);
-//
-//		if (waitKey(1) >= 0)
-//			break;
-//	}
-//	return 0;
-//}
-
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/videoio.hpp>
@@ -47,11 +6,6 @@
 
 using namespace cv;
 using namespace std;
-
-void dummy(int, void*)
-{
-	
-}
 
 int threshold1 = 30;
 
@@ -117,15 +71,25 @@ void mouse_callback(int event, int x, int y, int flags, void* param)
 	}
 }
 
+Mat process(Mat img_bgr, Mat img_binary, bool debug)
+{
+	Mat img_result = img_bgr.clone();
 
+	vector<vector<Point>>contours;
+	findContours(img_binary, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+	if (debug)
+	{
+		vector<vector<cv::Point>>result;
+		drawContours(img_result, result, -1, Scalar(0, 0, 255), 3);
+	}
+	return img_result;
+}
 
 int main()
 {
 	namedWindow("img_color");
 	setMouseCallback("img_color", mouse_callback);
-	createTrackbar("threshold", "img_color", &threshold1, 255, dummy);
-	setTrackbarPos("threshold", "img_color", 30);
-
 
 	Mat img_hsv;
 
@@ -141,8 +105,7 @@ int main()
 	{
 		cap.read(img_color);
 
-		threshold1 = getTrackbarPos("threshold", "img_color");
-
+		flip(img_color, img_color, 1);
 		cvtColor(img_color, img_hsv, COLOR_BGR2HSV);
 
 		Mat img_mask1, img_mask2, img_mask3, img_mask;
@@ -151,12 +114,12 @@ int main()
 		inRange(img_hsv, lower_blue3, upper_blue3, img_mask3);
 		img_mask = img_mask1 | img_mask2 | img_mask3;
 
-		int morph_size = 2;
+		/*int morph_size = 1;
 		Mat element = getStructuringElement(MORPH_RECT, Size(2 * morph_size + 1, 2 * morph_size + 1), Point(morph_size, morph_size));
 		morphologyEx(img_mask, img_mask, MORPH_OPEN, element);
-		morphologyEx(img_mask, img_mask, MORPH_CLOSE, element);
+		morphologyEx(img_mask, img_mask, MORPH_CLOSE, element);*/
 
-		Mat img_result;
+		/*Mat img_result;
 		bitwise_and(img_color, img_color, img_result, img_mask);
 
 		Mat img_labels, stats, centroids;
@@ -171,13 +134,16 @@ int main()
 
 			int centerX = centroids.at<double>(j, 0);
 			int centerY = centroids.at<double>(j, 1);
+			// 검출 영역의 중앙을 구함
 
 			if (area > 100)
 			{
-				circle(img_color, Point(centerX, centerY), 5, Scalar(255, 0, 0), 1);
-				rectangle(img_color, Point(left, top), Point(left + width, top + height), Scalar(0, 0, 255), 1);
+				circle(img_color, Point(centerX, centerY), 3, Scalar(0, 255, 0), 1);
+				rectangle(img_color, Point(left, top), Point(left + width, top + height), Scalar(0, 255, 0), 1);
 			}
-		}
+		}*/
+
+		Mat img_result = process(img_color, img_mask, false);
 
 		imshow("img_color", img_color);
 		imshow("img_mask", img_mask);
@@ -186,7 +152,5 @@ int main()
 		if (waitKey(1) > 0)
 			break;
 	}
-
-
 	return 0;
 }
