@@ -28,7 +28,7 @@ int findMaxArea(vector<vector<cv::Point>>contours)
 		}
 	}
 
-	if (max_area < 10000)
+	if (max_area < 1000)
 		max_index = -1;
 
 	return max_index;
@@ -116,7 +116,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 
 		double angle = calculateAngle(cv::Point(start.x - far.x, start.y - far.y), cv::Point(end.x - far.x, end.y - far.y));
 
-		if (angle > 0 && angle < 45 && d > 10000)
+		if (angle > 0 && angle < 45 && d > 1000)
 		{
 			if (start.y < cy)
 				points2.push_back(start);
