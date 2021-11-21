@@ -187,7 +187,7 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 {
 	Mat img_result = img_bgr.clone();
 
-	putText(img_result, "Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0));
+	putText(img_result, "11011 Shin Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 0));
 
 	// 2-1 바이너리 이미지에서 컨투어를 검출
 	vector<vector<Point>>contours;
@@ -212,16 +212,20 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 
 	if (ret > 0 && points.size() > 0)
 	{
-		for (int i = 0; i < points.size(); i++)
+		if (points.size() >= 4)
 		{
-			//손까락 끝을 표시
-			circle(img_result, points[i], 4, Scalar(0, 0, 255), -1);
-			putText(img_result, "center", Point(g_centerX, g_centerY + 60), FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0));
-			circle(img_result, Point(g_centerX, g_centerY + 80), 4, Scalar(0, 0, 255), -1);
+			printf("손가락");
 		}
 		for (int i = 0; i < points.size(); i++)
 		{
-			line(img_result, Point(g_centerX, g_centerY + 80), points[i], (0, 0, 0), 1);
+			//손을 표시
+			circle(img_result, points[i], 8, Scalar(0, 0, 255), 2);
+			putText(img_result, "center", Point(g_centerX, g_centerY + 60), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 255));
+			circle(img_result, Point(g_centerX, g_centerY + 80), 6, Scalar(0, 0, 255), -1);
+		}
+		for (int i = 0; i < points.size(); i++)
+		{
+			line(img_result, Point(g_centerX, g_centerY + 80), points[i], Scalar(0, 255, 0), 1);
 		}
 	}
 	return img_result;
@@ -238,14 +242,12 @@ int main()
 		return -1;
 	}
 
-	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(500, 250, false);
+	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(0, 0, false);
 
 	Mat img_frame;
 
 	while (1)
 	{
-		cap.read(img_frame);
-
 		// 1-1 입력 영상
 		bool ret = cap.read(img_frame);
 		if (!ret)
