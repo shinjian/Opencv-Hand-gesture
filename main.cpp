@@ -4,32 +4,7 @@
 using namespace cv;
 using namespace std;
 
-int detect(Mat img, CascadeClassifier face_cascade, Rect& face)
-{
-	vector<Rect>faces;
-
-	face_cascade.detectMultiScale(img, faces, 1.1, 5, CASCADE_SCALE_IMAGE, Size(30, 30));
-
-
-	if (faces.size() == 0)
-		return -1;
-	else
-	{
-		face = faces[0];
-
-		return 0;
-	}
-}
-
-int findFaceAra(Mat img, CascadeClassifier face_cascade, Rect& face)
-{
-	Mat img_gray;
-	cvtColor(img, img_gray, COLOR_BGR2GRAY);
-	equalizeHist(img_gray, img_gray);
-	int ret = detect(img_gray, face_cascade, face);
-
-	return ret;
-}
+double g_centerX, g_centerY;
 
 int findMaxArea(vector<vector<cv::Point>>contours)
 {
@@ -93,6 +68,8 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 
 	int cx = (int)(M.m10 / M.m00);
 	int cy = (int)(M.m01 / M.m00);
+	g_centerX = cx;
+	g_centerY = cy;
 
 	// 3-2 컨투어를 근사화
 	vector<cv::Point>approx;
@@ -191,7 +168,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 		else
 			pre = approx[approx.size() - 1];
 
-		if (idx + 1 < approx.size())
+		if (idx - 1 < approx.size())
 			next = approx[idx + 1];
 		else
 			next = approx[0];
@@ -200,7 +177,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 		double distance1 = distanceBetweenTwoPoints(pre, point1);
 		double distance2 = distanceBetweenTwoPoints(next, point1);
 
-		if (angle < 45.0 && distance1 > 0 && distance2 > 40)
+		if (angle < 45.0 && distance1 > 40 && distance2 > 40)
 			new_points.push_back(point1);
 	}
 	return 1;
@@ -209,6 +186,8 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 Mat process(Mat img_bgr, Mat img_binary, bool debug)
 {
 	Mat img_result = img_bgr.clone();
+
+	putText(img_result, "Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0));
 
 	// 2-1 바이너리 이미지에서 컨투어를 검출
 	vector<vector<Point>>contours;
@@ -231,11 +210,19 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 	vector<cv::Point>points;
 	int ret = getFingerPosition(contours[max_idx], img_result, points, debug);
 
-
 	if (ret > 0 && points.size() > 0)
 	{
 		for (int i = 0; i < points.size(); i++)
-			circle(img_result, points[i], 20, Scalar(255, 0, 255), 5);
+		{
+			//손까락 끝을 표시
+			circle(img_result, points[i], 4, Scalar(0, 0, 255), -1);
+			putText(img_result, "center", Point(g_centerX, g_centerY + 60), FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0));
+			circle(img_result, Point(g_centerX, g_centerY + 80), 4, Scalar(0, 0, 255), -1);
+		}
+		for (int i = 0; i < points.size(); i++)
+		{
+			line(img_result, Point(g_centerX, g_centerY + 80), points[i], (0, 0, 0), 1);
+		}
 	}
 	return img_result;
 }
@@ -251,7 +238,6 @@ int main()
 		return -1;
 	}
 
-	//테스트 옵션에 따라 두 번째 옵션 변경
 	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(500, 250, false);
 
 	Mat img_frame;
@@ -259,9 +245,6 @@ int main()
 	while (1)
 	{
 		cap.read(img_frame);
-
-		flip(img_frame, img_frame, 1);
-		//cvtColor(img_frame, img_hsv, COLOR_BGR2HSV);
 
 		// 1-1 입력 영상
 		bool ret = cap.read(img_frame);
