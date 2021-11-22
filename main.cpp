@@ -242,7 +242,7 @@ int main()
 		return -1;
 	}
 
-	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(0, 0, false);
+	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(500, 250, false);
 
 	Mat img_frame;
 
