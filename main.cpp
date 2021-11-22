@@ -168,7 +168,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 		else
 			pre = approx[approx.size() - 1];
 
-		if (idx - 1 < approx.size())
+		if (idx + 1 < approx.size())
 			next = approx[idx + 1];
 		else
 			next = approx[0];
@@ -186,8 +186,6 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 Mat process(Mat img_bgr, Mat img_binary, bool debug)
 {
 	Mat img_result = img_bgr.clone();
-
-	putText(img_result, "11011 Shin Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 0));
 
 	// 2-1 바이너리 이미지에서 컨투어를 검출
 	vector<vector<Point>>contours;
@@ -209,6 +207,7 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 	// 2-3 손가락 끝을 찾음
 	vector<cv::Point>points;
 	int ret = getFingerPosition(contours[max_idx], img_result, points, debug);
+
 
 	if (ret > 0 && points.size() > 0)
 	{
@@ -242,6 +241,7 @@ int main()
 		return -1;
 	}
 
+	//테스트 옵션에 따라 두 번째 옵션 변경
 	Ptr<BackgroundSubtractorMOG2>foregroundBackground = createBackgroundSubtractorMOG2(500, 250, false);
 
 	Mat img_frame;
@@ -256,7 +256,7 @@ int main()
 		// 1-2 영상의 좌우를 바꿈
 		flip(img_frame, img_frame, 1);
 
-		// 1-3 블러처리
+		// 1-3 얼굴 영역을 찾음
 		Mat img_blur;
 		GaussianBlur(img_frame, img_blur, Size(5, 5), 0);
 
