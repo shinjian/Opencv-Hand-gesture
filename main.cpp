@@ -187,6 +187,8 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 {
 	Mat img_result = img_bgr.clone();
 
+	putText(img_result, "11011 Shin Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 0));
+
 	// 2-1 바이너리 이미지에서 컨투어를 검출
 	vector<vector<Point>>contours;
 	findContours(img_binary, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
