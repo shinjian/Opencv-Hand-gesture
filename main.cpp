@@ -1,9 +1,11 @@
 #include<opencv2/opencv.hpp>
+#include<Windows.h>
 #include<iostream>
 
 using namespace cv;
 using namespace std;
 
+int g_number = 0;
 double g_centerX, g_centerY;
 
 int findMaxArea(vector<vector<cv::Point>>contours)
@@ -111,10 +113,10 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 	{
 		cv::Point start = approx[defects[j][0]];
 		cv::Point end = approx[defects[j][1]];
-		cv::Point far = approx[defects[j][2]];
+		cv::Point fa = approx[defects[j][2]];
 		int d = defects[j][3];
 
-		double angle = calculateAngle(cv::Point(start.x - far.x, start.y - far.y), cv::Point(end.x - far.x, end.y - far.y));
+		double angle = calculateAngle(cv::Point(start.x - fa.x, start.y - fa.y), cv::Point(end.x - fa.x, end.y - fa.y));
 
 		if (angle > 0 && angle < 45 && d > 1000)
 		{
@@ -187,8 +189,6 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 {
 	Mat img_result = img_bgr.clone();
 
-	putText(img_result, "11011 Shin Jian", Point(20, 20), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 255, 0));
-
 	// 2-1 바이너리 이미지에서 컨투어를 검출
 	vector<vector<Point>>contours;
 	findContours(img_binary, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -210,18 +210,39 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 	vector<cv::Point>points;
 	int ret = getFingerPosition(contours[max_idx], img_result, points, debug);
 
+	if (points.size() == 0)
+	{
+		if (g_number == 0)
+		{
+			INPUT inputs = { 0 };
+			inputs.type = INPUT_KEYBOARD;
+			inputs.ki.wVk = VK_SPACE;
+			SendInput(1, &inputs, sizeof(inputs));
+			g_number = 1;
+			cout << "동영상 멈춤 (" << points.size() << ")\n";
+		}
+	}
+
+	if (points.size() == 5)
+	{
+		if (g_number == 1)
+		{
+			INPUT inputs = { 0 };
+			inputs.type = INPUT_KEYBOARD;
+			inputs.ki.wVk = VK_SPACE;
+			SendInput(1, &inputs, sizeof(inputs));
+			g_number = 0;
+			cout << "동영상 재생 (" << points.size() << ")\n";
+		}
+	}
 
 	if (ret > 0 && points.size() > 0)
 	{
-		if (points.size() >= 4)
-		{
-			printf("손가락");
-		}
 		for (int i = 0; i < points.size(); i++)
 		{
 			//손을 표시
 			circle(img_result, points[i], 8, Scalar(0, 0, 255), 2);
-			putText(img_result, "center", Point(g_centerX, g_centerY + 60), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 255));
+			putText(img_result, "center", Point(g_centerX, g_centerY + 80), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 255));
 			circle(img_result, Point(g_centerX, g_centerY + 80), 6, Scalar(0, 0, 255), -1);
 		}
 		for (int i = 0; i < points.size(); i++)
