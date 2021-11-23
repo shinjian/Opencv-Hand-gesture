@@ -1,2 +1,2 @@
 Hand gesture recognition program
-https://github.com/jian1130/Opencv-Hand-gesture/issues/1#issue-1061302639
+![6](https://user-images.githubusercontent.com/75853990/143034760-c6096464-98dd-4b27-b967-42d810975526.png)
