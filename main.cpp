@@ -294,8 +294,8 @@ int main()
 		// 1-6 손가락 인식 관련 처리
 		Mat img_result = process(img_frame, img_mask, false);
 
-		imshow("근명고 11011 신지안 mask", img_mask);
-		imshow("근명고 11011 신지안 Color", img_result);
+		imshow("mask", img_mask);
+		imshow("Color", img_result);
 
 		int key = waitKey(30);
 		if (key == 27)
