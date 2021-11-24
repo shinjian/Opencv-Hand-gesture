@@ -62,7 +62,7 @@ bool sort_custum(const cv::Point p1, const cv::Point p2)
 
 int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point>& new_points, bool debug)
 {
-	// 3-1 컨투어 max_contour의 무게 중심을 찾음
+	// 컨투어 max_contour의 무게 중심을 찾음
 	vector<cv::Point>points1;
 
 	Moments M;
@@ -73,15 +73,15 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 	g_centerX = cx;
 	g_centerY = cy;
 
-	// 3-2 컨투어를 근사화
+	// 컨투어를 근사화
 	vector<cv::Point>approx;
 	approxPolyDP(Mat(max_contour), approx, arcLength(Mat(max_contour), true) * 0.02, true);
 
-	// 3-3 컨벡스 혈을 구함
+	// 컨벡스 혈을 구함
 	vector<cv::Point>hull;
 	convexHull(Mat(approx), hull, true);
 
-	// 3-4 컨벡스 혈의 꼭지점을 손가락 끝 후보로 저장
+	// 컨벡스 혈의 꼭지점을 손가락 끝 후보로 저장
 	//손가락 1개를 인식하기 위해 사용
 	for (int i = 0; i < hull.size(); i++)
 		if (cy > hull[i].y)
@@ -97,7 +97,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 			circle(img_result, points1[i], 15, Scalar(0, 0, 0), -1);
 	}
 
-	// 3-5 Convexity Defects를 구함
+	// Convexity Defects를 구함
 	vector<int> hull2;
 	convexHull(Mat(approx), hull2, false);
 
@@ -107,7 +107,7 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 	if (defects.size() == 0)
 		return -1;
 
-	// 3-6 Convexity Defects를 이용해서 손까락 끝을 검출
+	// Convexity Defects를 이용해서 손까락 끝을 검출
 	vector<cv::Point>points2;
 	for (int j = 0; j < defects.size(); j++)
 	{
@@ -138,12 +138,12 @@ int getFingerPosition(vector<Point>max_contour, Mat img_result, vector<cv::Point
 			circle(img_result, points2[i], 20, Scalar(0, 255, 0), 5);
 	}
 
-	// 3-7 2가지 방식으로 구한 손가락 끝 좌표를 하나로 합친 후 중복을 제거
+	// 2가지 방식으로 구한 손가락 끝 좌표를 하나로 합친 후 중복을 제거
 	points1.insert(points1.end(), points2.begin(), points2.end());
 	sort(points1.begin(), points1.end(), sort_custum);
 	points1.erase(unique(points1.begin(), points1.end()), points1.end());
 
-	// 3-8 손가락 예비 후보를 approx에서 찾아서 좌우 꼭지점과의 각도가 45도 이고 좌우 꼭지점과 일정 거리 떨어진 경우를 손가락 끝으로 판정
+	// 손가락 예비 후보를 approx에서 찾아서 좌우 꼭지점과의 각도가 45도 이고 좌우 꼭지점과 일정 거리 떨어진 경우를 손가락 끝으로 판정
 	for (int i = 0; i < points1.size(); i++)
 	{
 		Point point1 = points1[i];
@@ -242,7 +242,7 @@ Mat process(Mat img_bgr, Mat img_binary, bool debug)
 		{
 			//손을 표시
 			circle(img_result, points[i], 8, Scalar(0, 0, 255), 2);
-			putText(img_result, "center", Point(g_centerX, g_centerY + 80), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 255));
+			putText(img_result, "center", Point(g_centerX + 15, g_centerY + 80), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(255, 0, 255));
 			circle(img_result, Point(g_centerX, g_centerY + 80), 6, Scalar(0, 0, 255), -1);
 		}
 		for (int i = 0; i < points.size(); i++)
@@ -291,11 +291,11 @@ int main()
 		Mat kernel = getStructuringElement(MORPH_ELLIPSE, Size(5, 5));
 		morphologyEx(img_mask, img_mask, MORPH_CLOSE, kernel);
 
-		// 1-7 손가락 인식 관련 처리
+		// 1-6 손가락 인식 관련 처리
 		Mat img_result = process(img_frame, img_mask, false);
 
-		imshow("mask", img_mask);
-		imshow("Color", img_result);
+		imshow("근명고 11011 신지안 mask", img_mask);
+		imshow("근명고 11011 신지안 Color", img_result);
 
 		int key = waitKey(30);
 		if (key == 27)
