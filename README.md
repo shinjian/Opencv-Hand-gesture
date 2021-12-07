@@ -1,4 +1,5 @@
 Hand gesture recognition program
 
+Install : Opencv 4.5.4
 
-![6](https://user-images.githubusercontent.com/75853990/143034760-c6096464-98dd-4b27-b967-42d810975526.png)
+![54t54](https://user-images.githubusercontent.com/75853990/143259721-80a389c3-f5c0-441d-b0f2-a1b1ff359d19.gif)
