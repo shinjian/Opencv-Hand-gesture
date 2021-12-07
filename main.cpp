@@ -279,7 +279,6 @@ int main()
 		// 1-2 영상의 좌우를 바꿈
 		flip(img_frame, img_frame, 1);
 
-		// 1-3 얼굴 영역을 찾음
 		Mat img_blur;
 		GaussianBlur(img_frame, img_blur, Size(5, 5), 0);
 
